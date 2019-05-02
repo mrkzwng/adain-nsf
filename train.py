@@ -122,7 +122,6 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
             for batch in range(n_batches):
 
                 try:
-                    a = int(3) + 'a'
                     # retrive a batch of content and style images
                     content_batch_path = content_imgs_path[batch*BATCH_SIZE:(batch*BATCH_SIZE + BATCH_SIZE)]
                     style_batch_path   = style_imgs_path[batch*BATCH_SIZE:(batch*BATCH_SIZE + BATCH_SIZE)]
@@ -154,7 +153,8 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
                             print('style loss  : %.3f,  weighted style loss: %.3f\n' % (_style_loss, style_weight * _style_loss))
                 except Exception as ex:
                     saver.save(sess, model_save_path, global_step=step)
-                    print('\nSomething wrong happens! Current model is saved to <%s>' % model_save_path)
+                    print('\nException at step {}, epoch {}. Current model is saved to {}'\
+                          .format(step, epoch, model_save_path))
                     print('Error message: %s' % str(ex))
                     continue
 
