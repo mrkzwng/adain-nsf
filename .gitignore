@@ -6,11 +6,11 @@ __pycache__/
 # models
 *.npz
 *.zip
-models/
+models/*
 
 # outputs
-outputs/
+outputs/*
 
 # images
-images/
+images/*
 
