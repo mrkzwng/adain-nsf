@@ -13,4 +13,7 @@ models/*
 # outputs
 outputs/*
 
+# logs for tensorbard
+logs/*
+
 
