@@ -13,7 +13,7 @@ STYLE_LAYERS  = ('relu1_1', 'relu2_1', 'relu3_1', 'relu4_1')
 
 TRAINING_IMAGE_SHAPE = (256, 256, 3) # (height, width, color_channels)
 
-EPOCHS = 4
+EPOCHS = 1
 EPSILON = 1e-5
 BATCH_SIZE = 8
 LEARNING_RATE = 1e-4
@@ -140,7 +140,7 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
                             print('style loss  : %.3f,  weighted style loss: %.3f\n' % (_style_loss, style_weight * _style_loss))
         except Exception as ex:
             saver.save(sess, model_save_path, global_step=step)
-            print('\nSomething wrong happens! Current model is saved to <%s>' % tmp_save_path)
+            print('\nSomething wrong happens! Current model is saved to <%s>' % model_save_path)
             print('Error message: %s' % str(ex))
 
         ###### Done Training & Save the model ######

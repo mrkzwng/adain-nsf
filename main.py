@@ -10,8 +10,8 @@ from utils import list_images
 IS_TRAINING = False
 
 # for training
-TRAINING_CONTENT_DIR = '../MS_COCO'
-TRAINING_STYLE_DIR = '../WikiArt'
+TRAINING_CONTENT_DIR = '../data/train_content_test'
+TRAINING_STYLE_DIR = '../data/train_style_test'
 ENCODER_WEIGHTS_PATH = 'vgg19_normalised.npz'
 LOGGING_PERIOD = 20
 
