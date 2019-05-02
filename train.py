@@ -9,6 +9,8 @@ from style_transfer_net import StyleTransferNet
 from utils import get_train_images
 
 
+LOG_DIR = './logs'
+
 STYLE_LAYERS  = ('relu1_1', 'relu2_1', 'relu3_1', 'relu4_1')
 
 TRAINING_IMAGE_SHAPE = (256, 256, 3) # (height, width, color_channels)
@@ -22,7 +24,7 @@ DECAY_STEPS = 1.0
 
 
 def train(style_weight, content_imgs_path, style_imgs_path, encoder_path, 
-          model_save_path, debug=False, logging_period=100):
+          model_save_path, debug=False, logging_period=200):
     if debug:
         from datetime import datetime
         start_time = datetime.now()
@@ -85,6 +87,13 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
         # compute the total loss
         loss = content_loss + style_weight * style_loss
 
+        # tensorboard
+        tf.summary.scalar('loss', loss)
+        tf.summary.scalar('content_loss', content_loss)
+        tf.summary.scalar('style_loss', style_loss)
+        merged_summary = tf.summary.merge_all()
+        summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
+
         # Training step
         global_step = tf.Variable(0, trainable=False)
         learning_rate = tf.train.inverse_time_decay(LEARNING_RATE, global_step, DECAY_STEPS, LR_DECAY_RATE)
@@ -132,8 +141,11 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
 
                         if is_last_step or step == 1 or step % logging_period == 0:
                             elapsed_time = datetime.now() - start_time
-                            _content_loss, _style_loss, _loss = sess.run([content_loss, style_loss, loss], 
-                                feed_dict={content: content_batch, style: style_batch})
+                            summary, _content_loss, _style_loss, _loss = \
+                                sess.run(
+                                    [merged_summary, content_loss, style_loss, loss], 
+                                    feed_dict={content: content_batch, style: style_batch})
+                            summary_writer.add_summary(summary, step)
 
                             print('step: %d,  total loss: %.3f,  elapsed time: %s' % (step, _loss, elapsed_time))
                             print('content loss: %.3f' % (_content_loss))
