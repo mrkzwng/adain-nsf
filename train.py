@@ -114,13 +114,15 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
             print('\nElapsed time for preprocessing before actually train the model: %s' % elapsed_time)
             print('Now begin to train the model...\n')
 
-        try:
-            for epoch in range(EPOCHS):
+        for epoch in range(EPOCHS):
 
-                np.random.shuffle(content_imgs_path)
-                np.random.shuffle(style_imgs_path)
+            np.random.shuffle(content_imgs_path)
+            np.random.shuffle(style_imgs_path)
 
-                for batch in range(n_batches):
+            for batch in range(n_batches):
+
+                try:
+                    a = int(3) + 'a'
                     # retrive a batch of content and style images
                     content_batch_path = content_imgs_path[batch*BATCH_SIZE:(batch*BATCH_SIZE + BATCH_SIZE)]
                     style_batch_path   = style_imgs_path[batch*BATCH_SIZE:(batch*BATCH_SIZE + BATCH_SIZE)]
@@ -150,10 +152,11 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
                             print('step: %d,  total loss: %.3f,  elapsed time: %s' % (step, _loss, elapsed_time))
                             print('content loss: %.3f' % (_content_loss))
                             print('style loss  : %.3f,  weighted style loss: %.3f\n' % (_style_loss, style_weight * _style_loss))
-        except Exception as ex:
-            saver.save(sess, model_save_path, global_step=step)
-            print('\nSomething wrong happens! Current model is saved to <%s>' % model_save_path)
-            print('Error message: %s' % str(ex))
+                except Exception as ex:
+                    saver.save(sess, model_save_path, global_step=step)
+                    print('\nSomething wrong happens! Current model is saved to <%s>' % model_save_path)
+                    print('Error message: %s' % str(ex))
+                    continue
 
         ###### Done Training & Save the model ######
         saver.save(sess, model_save_path)
