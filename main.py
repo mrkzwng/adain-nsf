@@ -7,7 +7,7 @@ from infer import stylize
 from utils import list_images
 
 
-IS_TRAINING = True
+IS_TRAINING = False
 
 # for training
 TRAINING_CONTENT_DIR = '../data/train_content'
