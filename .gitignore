@@ -4,8 +4,10 @@ __pycache__/
 *$py.class
 
 # models
-*.npz
+**/*.npz
+**/*.zip
 *.zip
+*.npz
 models/*
 
 # outputs
