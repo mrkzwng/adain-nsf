@@ -10,9 +10,6 @@ __pycache__/
 *.npz
 models/*
 
-# outputs
-outputs/
-
 # logs for tensorbard
 logs/*
 logs/
