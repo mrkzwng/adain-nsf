@@ -23,7 +23,7 @@ LR_DECAY_RATE = 5e-5
 DECAY_STEPS = 1.0
 NOISE_COUNT = 650
 NOISE_RANGE = 10
-NOISE_WEIGHT = 1000.0
+noise_weight = 1000.0
 
 
 def train(style_weight, content_imgs_path, style_imgs_path, encoder_path, 
@@ -67,7 +67,11 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
 
         # pass content and style to the stn, getting the generated_img
         generated_img = stn.transform(content, style)
-        noise_img = stn.transform(content + noise, style)
+        # pass the noisy content and style to stn, getting the noisy_img
+        noisy_img = stn.transform(content + noise, style)
+
+        # compute the "popping loss", or stuff that makes jitters in videos
+        popping_loss = tf.reduce_mean((generated_img - noisy_img)**2)
 
         # get the target feature maps which is the output of AdaIN
         target_features = stn.target_features
@@ -102,12 +106,14 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
         style_loss = tf.reduce_sum(style_layer_loss)
 
         # compute the total loss
-        loss = content_loss + style_weight * style_loss
+        loss = content_loss + style_weight * style_loss \
+                            + noise_weight * popping_loss
 
         # tensorboard
         tf.summary.scalar('loss', loss)
         tf.summary.scalar('content_loss', content_loss)
         tf.summary.scalar('style_loss', style_loss)
+        tf.summary.scalar('popping_loss', popping_loss)
         merged_summary = tf.summary.merge_all()
         summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
 
@@ -159,15 +165,16 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
 
                         if is_last_step or step == 1 or step % logging_period == 0:
                             elapsed_time = datetime.now() - start_time
-                            summary, _content_loss, _style_loss, _loss = \
+                            summary, _content_loss, _style_loss, _popping_loss, _loss = \
                                 sess.run(
-                                    [merged_summary, content_loss, style_loss, loss], 
+                                    [merged_summary, content_loss, style_loss, popping_loss, loss], 
                                     feed_dict={content: content_batch, style: style_batch})
                             summary_writer.add_summary(summary, step)
 
                             print('step: %d,  total loss: %.3f,  elapsed time: %s' % (step, _loss, elapsed_time))
                             print('content loss: %.3f' % (_content_loss))
                             print('style loss  : %.3f,  weighted style loss: %.3f\n' % (_style_loss, style_weight * _style_loss))
+                            print('popping loss : {}'.format(_popping_loss))
                 except Exception as ex:
                     saver.save(sess, model_save_path, global_step=step)
                     print('\nException at step {}, epoch {}. Current model is saved to {}'\
