@@ -1,10 +1,32 @@
 # Utility
 
 import numpy as np
+import random
 
 from os import listdir, mkdir, sep
 from os.path import join, exists, splitext
 from scipy.misc import imread, imsave, imresize
+
+
+def generate_noise_image(noise_count, noise_range, batch_size, height, width):
+    '''
+    generates a noise image per epoch
+
+    assumes NHWC format for images
+    '''
+    noiseimg = np.zeros([height, width, 3], dtype=np.float)
+    for idx in range(noise_count):
+        x_idx = random.randrange(height)
+        y_idx = random.randrange(width)
+
+        for ch in range(3):
+            noiseimg[x_idx, y_idx, ch] += random.randrange(-noise_range, 
+                                                            noise_range)
+
+    noiseimg = noiseimg.reshape([1, height, width, 3])
+    noiseimg = np.concatenate([noiseimg for __ in range(batch_size)], axis=0)
+
+    return(noiseimg)
 
 
 def list_images(directory):

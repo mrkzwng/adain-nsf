@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from style_transfer_net import StyleTransferNet
-from utils import get_train_images
+from utils import get_train_images, generate_noise_image
 
 
 LOG_DIR = './logs'
@@ -15,12 +15,15 @@ STYLE_LAYERS  = ('relu1_1', 'relu2_1', 'relu3_1', 'relu4_1')
 
 TRAINING_IMAGE_SHAPE = (256, 256, 3) # (height, width, color_channels)
 
-EPOCHS = 2
+EPOCHS = 4
 EPSILON = 1e-5
 BATCH_SIZE = 8
 LEARNING_RATE = 1e-4
 LR_DECAY_RATE = 5e-5
 DECAY_STEPS = 1.0
+NOISE_COUNT = 650
+NOISE_RANGE = 10
+NOISE_WEIGHT = 1000.0
 
 
 def train(style_weight, content_imgs_path, style_imgs_path, encoder_path, 
@@ -54,14 +57,17 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
 
     # create the graph
     with tf.Graph().as_default(), tf.Session() as sess:
+        # we need a content image, style image, and a noise image
         content = tf.placeholder(tf.float32, shape=INPUT_SHAPE, name='content')
         style   = tf.placeholder(tf.float32, shape=INPUT_SHAPE, name='style')
+        noise = generate_noise_image(NOISE_COUNT, NOISE_RANGE, BATCH_SIZE, HEIGHT, WIDTH)
 
         # create the style transfer net
         stn = StyleTransferNet(encoder_path)
 
         # pass content and style to the stn, getting the generated_img
         generated_img = stn.transform(content, style)
+        noise_img = stn.transform(content + noise, style)
 
         # get the target feature maps which is the output of AdaIN
         target_features = stn.target_features
@@ -72,7 +78,9 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
         enc_gen, enc_gen_layers = stn.encoder.encode(generated_img)
 
         # compute the content loss
-        content_loss = tf.reduce_sum(tf.reduce_mean(tf.square(enc_gen - target_features), axis=[1, 2]))
+        content_loss = tf.reduce_sum(tf.reduce_mean(
+                                     tf.square(enc_gen - target_features), 
+                                     axis=[1, 2]))
 
         # compute the style loss
         style_layer_loss = []
@@ -174,4 +182,5 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
             elapsed_time = datetime.now() - start_time
             print('Done training! Elapsed time: %s' % elapsed_time)
             print('Model is saved to: %s' % model_save_path)
+
 
