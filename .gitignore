@@ -13,7 +13,7 @@ models/*
 # outputs
 outputs/* 
 
-# logs for tensorbard
+# logs for tensorboard
 logs/*
 logs/
 
