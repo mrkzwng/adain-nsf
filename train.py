@@ -72,7 +72,8 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
         enc_gen, enc_gen_layers = stn.encoder.encode(generated_img)
 
         # compute the content loss
-        content_loss = tf.reduce_sum(tf.reduce_mean(tf.square(enc_gen - target_features), axis=[1, 2]))
+        content_loss = tf.reduce_sum(tf.reduce_mean(tf.square(enc_gen - target_features), 
+                                     axis=[1, 2]))
 
         # compute the style loss
         style_layer_loss = []
