@@ -31,8 +31,17 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
 
     # guarantee the size of content and style images to be a multiple of BATCH_SIZE
     num_imgs = min(len(content_imgs_path), len(style_imgs_path))
-    content_imgs_path = content_imgs_path[:num_imgs]
-    style_imgs_path   = style_imgs_path[:num_imgs]
+    # get random indices so we don't always end up with the same content-style pairings
+    content_idxs = np.random.choice(len(content_imgs_path),
+                                    size=num_imgs,
+                                    replace=False)
+    style_idxs = np.random.choice(len(style_imgs_path),
+                                  size=num_imgs,
+                                  replace=False)
+    content_imgs_path = np.array(content_imgs_path)
+    style_imgs_path = np.array(style_imgs_path)
+    content_imgs_path = content_imgs_path[content_idxs].tolist()
+    style_imgs_path = style_imgs_path[style_idxs].tolist()
     mod = num_imgs % BATCH_SIZE
     if mod > 0:
         print('Train set has been trimmed %d samples...\n' % mod)
