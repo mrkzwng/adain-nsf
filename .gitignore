@@ -11,10 +11,11 @@ __pycache__/
 models/*
 
 # outputs
-outputs/
 
 # logs for tensorbard
 logs/*
 logs/
 
+# video images
+images/content/tmp
 
