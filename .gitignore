@@ -20,3 +20,7 @@ logs/*
 images/content/tmp
 images/content
 
+# original model
+orig_model/
+
+
