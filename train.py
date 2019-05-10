@@ -122,10 +122,12 @@ def train(style_weight, content_imgs_path, style_imgs_path, encoder_path,
         learning_rate = tf.train.inverse_time_decay(LEARNING_RATE, global_step, DECAY_STEPS, LR_DECAY_RATE)
         train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss, global_step=global_step)
 
-        sess.run(tf.global_variables_initializer())
+        # sess.run(tf.global_variables_initializer())
 
         # saver
         saver = tf.train.Saver(max_to_keep=10)
+        # restorer
+        saver.restore(sess, './models/style_weight_2e0.ckpt')
 
         ###### Start Training ######
         step = 0
